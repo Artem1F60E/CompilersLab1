@@ -10,8 +10,7 @@ import java.util.stream.Collectors;
 public class Analyzer {
 
     private static List<List<String>> table;
-
-    private static String INCORRECT_PROGRAM = "\nIncorrect program - ";
+    private static final String INCORRECT_PROGRAM = "\nIncorrect program - ";
     private static final Pattern textPattern = Pattern.compile("[a-z][a-zA-Z\\d]*");
     private static final Pattern boolPattern = Pattern.compile("(true|false)");
     private static final Pattern numberPattern = Pattern.compile("-?\\d+");
@@ -21,19 +20,20 @@ public class Analyzer {
 
         String input = new Scanner(System.in).nextLine();
         System.out.println("\n");
-        Stack<String> stack = new Stack<>();
 
+        Stack<String> stack = new Stack<>();
         stack.add("$");
         stack.add("stmt_list");
         input += " $";
+
         List<String> inputList = new ArrayList<>(List.of(input.split(" ")));
 
         while (!inputList.get(0).equals("$")) {
             String X = stack.peek();
             String in = inputList.get(0);
-            if (numberPattern.matcher(in).matches())
+            if (numberPattern.matcher(in).matches()) {
                 in = "INT";
-            else if (textPattern.matcher(in).matches()) {
+            } else if (textPattern.matcher(in).matches()) {
                 in = "ID";
             } else if (boolPattern.matcher(in).matches()) {
                 in = "BOOL";
@@ -57,14 +57,14 @@ public class Analyzer {
                     }
 
                     String[] spl = rule.split("::=");
-                    String[] ruleTokens = spl.length == 1 ? new String[]{} : spl[1]
-                            .trim()
-                            .split(" ");
+                    String[] ruleTokens = spl.length == 1 ? new String[]{} : spl[1].trim().split(" ");
                     String non = stack.pop();
+
                     if (ruleTokens.length != 0)
                         for (int k = ruleTokens.length - 1; k >= 0; k--) {
                             stack.add(ruleTokens[k]);
                         }
+
                     System.out.printf("|%50s | %50s | %50s |\n", getStringStack(stack), String.join(" ", inputList), non + " ::= " + String.join(" ", ruleTokens));
 
                 } catch (RuntimeException e) {
@@ -91,9 +91,7 @@ public class Analyzer {
         if (termColumn == -1)
             throw new RuntimeException("Not found terminal - " + term);
 
-        return table.stream()
-                .filter(row -> row.get(0).equals(nonTerm))
-                .findFirst()
+        return table.stream().filter(row -> row.get(0).equals(nonTerm)).findFirst()
                 .orElseThrow(() -> new RuntimeException("Not found not terminal - " + nonTerm))
                 .get(termColumn);
     }
