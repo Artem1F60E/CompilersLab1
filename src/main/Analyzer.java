@@ -12,7 +12,6 @@ public class Analyzer {
     private static List<List<String>> table;
     private static final String INCORRECT_PROGRAM = "\nIncorrect program - ";
     private static final Pattern textPattern = Pattern.compile("[a-z][a-zA-Z\\d]*");
-    private static final Pattern boolPattern = Pattern.compile("(true|false)");
     private static final Pattern numberPattern = Pattern.compile("-?\\d+");
 
     public static void main(String[] args) throws IOException {
@@ -34,16 +33,14 @@ public class Analyzer {
             if (numberPattern.matcher(in).matches()) {
                 in = "INT";
             } else if (textPattern.matcher(in).matches()) {
-                in = "ID";
-            } else if (boolPattern.matcher(in).matches()) {
-                in = "BOOL";
+                if (!in.equals("if") && !in.equals("else")) {
+                    in = "ID";
+                }
             }
-            System.out.println("-".repeat(158));
             if (isNonTermExist(X) || X.equals("$")) {
                 if (X.equals(in)) {
                     stack.pop();
                     inputList.remove(0);
-                    System.out.printf("|%50s | %50s | %50s|\n", getStringStack(stack), String.join(" ", inputList), " ");
                 } else {
                     System.out.println(INCORRECT_PROGRAM + input);
                     return;
@@ -65,8 +62,7 @@ public class Analyzer {
                             stack.add(ruleTokens[k]);
                         }
 
-                    System.out.printf("|%50s | %50s | %50s |\n", getStringStack(stack), String.join(" ", inputList), non + " ::= " + String.join(" ", ruleTokens));
-
+                    System.out.println(non + " ::= " + String.join(" ", ruleTokens));
                 } catch (RuntimeException e) {
                     System.out.println(INCORRECT_PROGRAM + input);
                     e.printStackTrace();
@@ -74,16 +70,7 @@ public class Analyzer {
                 }
             }
         }
-        System.out.println("-".repeat(158));
         System.out.println("\nProgram is correct");
-    }
-
-    private static String getStringStack(Stack<String> stack) {
-        List<String> collect = Arrays.stream(stack.toArray())
-                .map(element -> (String) element)
-                .collect(Collectors.toList());
-        Collections.reverse(collect);
-        return String.join(" ", collect);
     }
 
     private static String getRule(String nonTerm, String term) {
